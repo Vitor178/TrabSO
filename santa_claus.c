@@ -6,6 +6,7 @@
 #include <semaphore.h>
 
 #define REINDEER 9 
+#define ELFS 100
 
 int count_elf = 0; 
 int count_reindeer = 0; 	 
@@ -19,12 +20,15 @@ void get_hitched (){
 }
 void get_help (){
 	printf("Got help");
-
+}
 void get_Sleight(){
+	printf("Got Sleight");
+}
+void help_elf(){
+	printf("Elf OK");
+}
 
-}
-}
-void *reindeers(void *n_tava_indo_sem_isso){
+void *reindeer(void *n_tava_indo_sem_isso){
 	pthread_mutex_lock(&count_mutex);	//impede que mais alguem altere o valor
 	count_reindeer++;
 	if (count_reindeer==REINDEER)				//se ja tiverem 9
@@ -33,12 +37,14 @@ void *reindeers(void *n_tava_indo_sem_isso){
 	sem_wait(&sem_reindeer);			//espera o santa liberar ele
 	
 	get_hitched();
+	pthread_exit(NULL);
 	
 }
 
-void *elfs(){
+void *elf(){
 	pthread_mutex_lock(&elf_mutex);  
-	pthread_mutex_lock(&count_mutex);  
+	pthread_mutex_lock(&count_mutex); 
+       	count_elf ++;	
 	if (count_elf == 3)
 		sem_post(&sem_santa);
 	else 
@@ -51,7 +57,12 @@ void *elfs(){
 	if(!count_elf)
 		pthread_mutex_unlock(&elf_mutex); 
 	pthread_mutex_unlock(&count_mutex);  
+	
+
+	pthread_exit(NULL)
+
 }
+
 
 void *Santa(void *num){
 	int *aux = (int *)num;
@@ -75,19 +86,38 @@ void *Santa(void *num){
 
 	}	
 	}
-	pthread_exit(NULL);	
 }
 
 
 int main (){
-	pthread_t threads[REINDEER];
+	sem_init(&sem_elf,0,0);
+	sem_init(&sem_santa,0,0);
+	sem_init(&sem_reindeer,0,0);
+	pthread_t Reindeerthreads[REINDEER];
+	pthread_t Elfthreads[ELFS]
+	pthread_t Santa;
+	srand(TIME(NULL));
 	long int cont;
-	
-	for (cont = 0; cont<REINDEER; cont++){
-		for(int time=0;time<1000;time++);
-		printf("\nCreate: %li",cont);
-		pthread_create(&threads[cont], NULL, reindeers, NULL);
-	}
+
+	while(1){
+		ticket = rand()%4;
+		switch(ticket){
+			case 0:	
+				pthread_mutex_lock(&count_mutex);
+				if(count_reindeer == REINDEER){
+				pthread_create(&Reindeerthreads[cont], NULL, reindeer, NULL);
+				};
+				pthread_mutex_unlock(&count_mutex);
+				break;
+			default:
+				
+				pthread_create(&Elfthreads[cont], NULL, elf, NULL);
+				break;
+		}
+		cont ++;
+
+	}	
+
 
 
 
