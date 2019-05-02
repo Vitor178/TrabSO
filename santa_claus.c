@@ -16,16 +16,20 @@ pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t elf_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void get_hitched (){
-	printf("Got hitch");
+	printf("\nGot hitch");
+	fflush(stdout);
 }
 void get_help (){
-	printf("Got help");
+	printf("\nGot help");
+	fflush(stdout);
 }
 void get_Sleight(){
-	printf("Got Sleight");
+	printf("\nGot Sleight");
+	fflush(stdout);
 }
 void help_elf(){
-	printf("Elf OK");
+	printf("\nElf OK");
+	fflush(stdout);
 }
 
 void *reindeer(void *n_tava_indo_sem_isso){
@@ -59,22 +63,23 @@ void *elf(){
 	pthread_mutex_unlock(&count_mutex);  
 	
 
-	pthread_exit(NULL)
+	pthread_exit(NULL);
 
 }
 
 
-void *Santa(void *num){
-	int *aux = (int *)num;
-	long int id = (int)*aux;
+void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
 	if (count_reindeer == REINDEER){
+		for(int p=0;p<9;p++){
 		pthread_mutex_lock(&count_mutex);
 		count_reindeer--;
 		pthread_mutex_unlock(&count_mutex);
-		sem_post(&sem_reindeer);
-		getSleight();
+			sem_post(&sem_reindeer);
+			get_Sleight();
+		}
+
 	}
 	else{
 	  sem_post(&sem_elf);
@@ -90,30 +95,36 @@ void *Santa(void *num){
 
 
 int main (){
+	int ticket=0;
 	sem_init(&sem_elf,0,0);
 	sem_init(&sem_santa,0,0);
 	sem_init(&sem_reindeer,0,0);
 	pthread_t Reindeerthreads[REINDEER];
-	pthread_t Elfthreads[ELFS]
-	pthread_t Santa;
-	srand(TIME(NULL));
-	long int cont;
-
+	pthread_t Elfthreads[ELFS];
+	pthread_t Santathreads[1];
+	srand(time(NULL));
+	int cont=0;
+	pthread_create(&Santathreads[0],NULL,Santa,NULL);
 	while(1){
+		sleep(1);
+		printf("\n%i",cont);
 		ticket = rand()%4;
 		switch(ticket){
-			case 0:	
+			case 0:
 				pthread_mutex_lock(&count_mutex);
-				if(count_reindeer == REINDEER){
+				if(count_reindeer < REINDEER){
+				printf("\nCriou Reindeer");
 				pthread_create(&Reindeerthreads[cont], NULL, reindeer, NULL);
 				};
 				pthread_mutex_unlock(&count_mutex);
 				break;
 			default:
-				
-				pthread_create(&Elfthreads[cont], NULL, elf, NULL);
+			        if(cont <ELFS)	
+					printf("\nCriou Elf");
+					pthread_create(&Elfthreads[cont], NULL, elf, NULL);
 				break;
 		}
+
 		cont ++;
 
 	}	
