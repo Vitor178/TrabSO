@@ -5,16 +5,24 @@
 #include <time.h>
 #include <semaphore.h>
 
+
+//Define o valores maximos de renas e elfos
 #define REINDEER 9 
 #define ELFS 100
 
+//Inicialização dos contadores
 int count_elf = 0; 
 int count_reindeer = 0; 	 
+
+//Inicialização dos semaforos
 sem_t sem_santa, sem_elf, sem_reindeer;
 
+//Inicialização dos mutex
 pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t elf_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+
+// Funções executadas pelos atores do problema
 void get_hitched (){
 	printf("Got hitch\n");
 	fflush(stdout);
@@ -32,13 +40,14 @@ void help_elf(){
 	fflush(stdout);
 }
 
-
+//Função que imprime a quantidade de renas e elfos ja criados
 void imprime(){
 
 	printf(" Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
 	fflush(stdout);
 }
 
+//Thread executada pelas renas
 void *reindeer(void *n_tava_indo_sem_isso){
 	pthread_mutex_lock(&count_mutex);	//impede que mais alguem altere o valor
 	count_reindeer++;
@@ -52,6 +61,7 @@ void *reindeer(void *n_tava_indo_sem_isso){
 	
 }
 
+//Thread executada pelos elfos
 void *elf(){
 	pthread_mutex_lock(&elf_mutex);  
 	pthread_mutex_lock(&count_mutex); 
@@ -74,12 +84,12 @@ void *elf(){
 
 }
 
-
+//Thread executada pelo Papai Noel
 void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
 	if (count_reindeer == REINDEER){
-		for(int p=0;p<9;p++){
+		for(int p=0;p<9;p++){		// Se existem 9 renas então elas sao atendidas primeiramente
 		pthread_mutex_lock(&count_mutex);
 		count_reindeer--;
 		pthread_mutex_unlock(&count_mutex);
@@ -89,45 +99,43 @@ void *Santa(){
 
 	}
 	else{
-	  sem_post(&sem_elf);
-	  help_elf();
-	  sem_post(&sem_elf);
-	  help_elf();
-	  sem_post(&sem_elf);
-	  help_elf();
+	for(int e=0;e<3;e++){	
+	  sem_post(&sem_elf);    //Libera elfos e os ajuda
+	  help_elf();  
 
+	}
 	}	
 	}
 }
 
 
 int main (){
-	int ticket=0;
-	sem_init(&sem_elf,0,0);
+	int ticket=0; 			//Inicialização de ticket, que sera usado para sortear qual thread sera criada
+	sem_init(&sem_elf,0,0);         
 	sem_init(&sem_santa,0,0);
 	sem_init(&sem_reindeer,0,0);
 	pthread_t Reindeerthreads[REINDEER];
 	pthread_t Elfthreads[ELFS];
 	pthread_t Santathreads[1];
-	srand(time(NULL));
-	int cont=0;
+	srand(time(NULL)); 
+	int cont=0; 			//Contador para que o numero de elfos criados nao ultrapasse o limite
 	pthread_create(&Santathreads[0],NULL,Santa,NULL);
 	while(1){
 		sleep(1);
 		//printf("\n%i",cont);
-		ticket = rand()%4;
+		ticket = rand()%4;     //Sorteia o ticket
 		switch(ticket){
 			case 0:
 				pthread_mutex_lock(&count_mutex);
 				if(count_reindeer < REINDEER){
-				pthread_create(&Reindeerthreads[cont], NULL, reindeer, NULL);	
+				pthread_create(&Reindeerthreads[cont], NULL, reindeer, NULL);	//Criação da thread Reindeer
 				printf("Criou Reindeer   "); imprime();
 				};
 				pthread_mutex_unlock(&count_mutex);
 				break;
 			default:
 			        if(cont <ELFS)	
-					pthread_create(&Elfthreads[cont], NULL, elf, NULL);	
+					pthread_create(&Elfthreads[cont], NULL, elf, NULL);	// Criação da thread Elf
 					printf("Criou Elf        "); imprime();
 				break;
 		}
