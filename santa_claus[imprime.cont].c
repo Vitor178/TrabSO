@@ -88,14 +88,14 @@ void *elf(){
 void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
+	pthread_mutex_lock(&count_mutex);
 	if (count_reindeer == REINDEER){
 		for(int p=0;p<9;p++){		// Se existem 9 renas então elas sao atendidas primeiramente
-		pthread_mutex_lock(&count_mutex);
 		count_reindeer--;
-		pthread_mutex_unlock(&count_mutex);
 			sem_post(&sem_reindeer);
 			get_Sleight();
 		}
+		
 
 	}
 	else{
@@ -104,7 +104,8 @@ void *Santa(){
 	  help_elf();  
 
 	}
-	}	
+	}
+	pthread_mutex_unlock(&count_mutex);	
 	}
 }
 
@@ -134,9 +135,11 @@ int main (){
 				pthread_mutex_unlock(&count_mutex);
 				break;
 			default:
+				pthread_mutex_lock(&count_mutex);
 			        if(cont <ELFS)	
 					pthread_create(&Elfthreads[cont], NULL, elf, NULL);	// Criação da thread Elf
 					printf("Criou Elf        "); imprime();
+				pthread_mutex_unlock(&count_mutex);
 				break;
 		}
 
