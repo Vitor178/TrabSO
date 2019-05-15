@@ -31,14 +31,6 @@ void get_help (){
 	printf("\nElfo recebeu ajuda\n");
 	fflush(stdout);
 }
-/*void get_Sleight(){
-	printf("Got Sleight\n");
-	fflush(stdout);
-}
-void help_elf(){
-	printf("Elf OK\n");
-	fflush(stdout);
-}*/
 
 //Função que imprime a quantidade de renas e elfos ja criados
 void imprime(){
@@ -92,28 +84,25 @@ void *elf(){
 void *Santa(){
 
 	while(1){				//santa fica em um loop
-	sem_wait(&sem_santa);			//dorme ate ser chamado pelo reeindeer ou pelo elf
-	pthread_mutex_lock(&count_mutex);	//trava o mutex para impedir que o valor da rena altere enquanto reduz ele
-	printf("Papai Noel acordou!!!\n");	//usado apenas para visualizacao
-	fflush(stdout);				//usado apenas para visualizacao
+		sem_wait(&sem_santa);			//dorme ate ser chamado pelo reeindeer ou pelo elf
+		pthread_mutex_lock(&count_mutex);	//trava o mutex para impedir que o valor da rena altere enquanto reduz ele
+		printf("Papai Noel acordou!!!\n");	//usado apenas para visualizacao
+		fflush(stdout);				//usado apenas para visualizacao
 
-	if (count_reindeer == REINDEER){
-		for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
-		count_reindeer--;
-			sem_post(&sem_reindeer);
-			//get_Sleight();
-		}
+		if (count_reindeer == REINDEER){
+			for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
+			count_reindeer--;
+				sem_post(&sem_reindeer);
+			}
 		
 
-	}
-	else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
-	for(int e=0;e<3;e++){	
-	  sem_post(&sem_elf);    		//Libera elfos e os ajuda
-	  help_elf();  
-
-	}
-	}
-	pthread_mutex_unlock(&count_mutex);	//libera o contador para a chegadas de novos reindeers e elfs e retorna a dormir na volta do loop
+		}
+		else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
+		for(int e=0;e<3;e++){	
+	 		sem_post(&sem_elf);    		//Libera elfos e os ajuda
+			}
+		}
+		pthread_mutex_unlock(&count_mutex);	//libera o contador para a chegadas de novos reindeers e elfs e retorna a dormir na volta do loop
 	}
 }
 
