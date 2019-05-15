@@ -75,13 +75,13 @@ void *elf(){
 	else 
 		pthread_mutex_unlock(&elf_mutex);  			//se nao tiverem 3 esperando, permite que outros cheguem
 	pthread_mutex_unlock(&count_mutex);  				//permite que alterem os conts 
-	sem_wait(&sem_elf);
+	sem_wait(&sem_elf);						//espera o santa liberar ele
 	get_help();
-	pthread_mutex_lock(&count_mutex);  
+	pthread_mutex_lock(&count_mutex);  				//trava para reduzir o contador
 	count_elf--;
-	if(!count_elf)
+	if(!count_elf)							//se for o ultimo a reduzir libera para que outros esfos possam entrar
 		pthread_mutex_unlock(&elf_mutex); 
-	pthread_mutex_unlock(&count_mutex);  
+	pthread_mutex_unlock(&count_mutex);  				//permite que outros alterem o cont
 	
 
 	pthread_exit(NULL);
@@ -90,13 +90,13 @@ void *elf(){
 
 //Thread executada pelo Papai Noel
 void *Santa(){
-	while(1){
-	sem_wait(&sem_santa);
-	pthread_mutex_lock(&count_mutex);
-	printf("Papai Noel acordou!!!\n");
-	fflush(stdout);
+	while(1){				//santa fica em um loop
+	sem_wait(&sem_santa);			//dorme ate ser chamado pelo reeindeer ou pelo elf
+	pthread_mutex_lock(&count_mutex);	//trava o mutex para impedir que o valor da rena altere enquanto reduz ele
+	printf("Papai Noel acordou!!!\n");	//usado apenas para visualizacao
+	fflush(stdout);				//usado apenas para visualizacao
 	if (count_reindeer == REINDEER){
-		for(int p=0;p<9;p++){		// Se existem 9 renas então elas sao atendidas primeiramente
+		for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
 		count_reindeer--;
 			sem_post(&sem_reindeer);
 			get_Sleight();
@@ -104,14 +104,14 @@ void *Santa(){
 		
 
 	}
-	else{
+	else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
 	for(int e=0;e<3;e++){	
-	  sem_post(&sem_elf);    //Libera elfos e os ajuda
+	  sem_post(&sem_elf);    		//Libera elfos e os ajuda
 	  help_elf();  
 
 	}
 	}
-	pthread_mutex_unlock(&count_mutex);	
+	pthread_mutex_unlock(&count_mutex);	//libera o contador para a chegadas de novos reindeers e elfs e retorna a dormir na volta do loop
 	}
 }
 
@@ -142,7 +142,7 @@ int main (){
 					printf ("Nao foi possivel criar o Reindeer");
 					exit(EXIT_FAILURE);
 				}
-				};
+				}
 				pthread_mutex_unlock(&count_mutex);
 				contR ++;				//aumenta para o vetor Reindeerthreads
 				break;
