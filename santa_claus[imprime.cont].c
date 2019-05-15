@@ -24,21 +24,21 @@ pthread_mutex_t elf_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Funções executadas pelos atores do problema
 void get_hitched (){
-	printf("Got hitch\n");
+	printf("\nRena pronta\n");
 	fflush(stdout);
 }
 void get_help (){
-	printf("Got help\n");
+	printf("\nElfo recebeu ajuda\n");
 	fflush(stdout);
 }
-void get_Sleight(){
+/*void get_Sleight(){
 	printf("Got Sleight\n");
 	fflush(stdout);
 }
 void help_elf(){
 	printf("Elf OK\n");
 	fflush(stdout);
-}
+}*/
 
 //Função que imprime a quantidade de renas e elfos ja criados
 void imprime(){
@@ -54,6 +54,7 @@ void *reindeer(){
 	printf("\n-------------------------\nCriou Reindeer   ");	//usado apenas para visualizacao
 	imprime();							//usado apenas para visualizacao
 	if (count_reindeer==REINDEER)				//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
+
 		sem_post(&sem_santa);
 	pthread_mutex_unlock(&count_mutex);			//permite que outros reindeers alterem o valor
 	sem_wait(&sem_reindeer);			//espera o santa liberar ele
@@ -72,8 +73,7 @@ void *elf(){
 	imprime();							//usado apenas para visualizacao
 	if (count_elf == 3)						//verifca se tem 3 elfos esperando
 		sem_post(&sem_santa);					//acorda o santa
-	else 
-		pthread_mutex_unlock(&elf_mutex);  			//se nao tiverem 3 esperando, permite que outros cheguem
+	pthread_mutex_unlock(&elf_mutex);  			//se nao tiverem 3 esperando, permite que outros cheguem
 	pthread_mutex_unlock(&count_mutex);  				//permite que alterem os conts 
 	sem_wait(&sem_elf);						//espera o santa liberar ele
 	get_help();
@@ -90,16 +90,18 @@ void *elf(){
 
 //Thread executada pelo Papai Noel
 void *Santa(){
+
 	while(1){				//santa fica em um loop
 	sem_wait(&sem_santa);			//dorme ate ser chamado pelo reeindeer ou pelo elf
 	pthread_mutex_lock(&count_mutex);	//trava o mutex para impedir que o valor da rena altere enquanto reduz ele
 	printf("Papai Noel acordou!!!\n");	//usado apenas para visualizacao
 	fflush(stdout);				//usado apenas para visualizacao
+
 	if (count_reindeer == REINDEER){
 		for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
 		count_reindeer--;
 			sem_post(&sem_reindeer);
-			get_Sleight();
+			//get_Sleight();
 		}
 		
 
@@ -153,6 +155,7 @@ int main (){
 						exit(EXIT_FAILURE);
 					}
 				contE ++;			//aumenta para o vetor Elfthreads
+
 				break;
 		}
 
@@ -162,6 +165,7 @@ int main (){
 
 
 }
+
 
 
 
