@@ -41,25 +41,18 @@ void help_elf(){
 }
 
 //Função que imprime a quantidade de renas e elfos ja criados
-void imprime(int inc_elf, int inc_reindeer){
+void imprime(){
 
-	printf("Papai noel: dormindo \nElfos: %d  Renas : %d\n",count_elf+inc_elf, count_reindeer+inc_reindeer);
+	printf("Papai noel: dormindo \nElfos: %d  Renas : %d\n",count_elf, count_reindeer);
 	fflush(stdout);
 }
-/*void imprime(){
-	if (count_elf < 2 && count_reindeer < 8){
-		printf("Santa: Sleeping\n Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
-	}
-	else 
-		printf("Santa: Wake up\n Elfos: %d  Renas : %d\n",count_elf, count_reindeer);
-	fflush(stdout);
-}
-*/
 
 //Thread executada pelas renas
-void *reindeer(void *n_tava_indo_sem_isso){
+void *reindeer(){
 	pthread_mutex_lock(&count_mutex);	//impede que mais alguem altere o valor
 	count_reindeer++;
+	printf("\n-------------------------\nCriou Reindeer   ");
+	imprime();
 	if (count_reindeer==REINDEER)				//se ja tiverem 9
 		sem_post(&sem_santa);
 	pthread_mutex_unlock(&count_mutex);
@@ -74,7 +67,9 @@ void *reindeer(void *n_tava_indo_sem_isso){
 void *elf(){
 	pthread_mutex_lock(&elf_mutex);  
 	pthread_mutex_lock(&count_mutex); 
-       	count_elf ++;	
+       	count_elf ++;
+	printf("\n-------------------------\nCriou Elf        ");
+	imprime();
 	if (count_elf == 3)
 		sem_post(&sem_santa);
 	else 
@@ -147,7 +142,6 @@ int main (){
 					printf ("Nao foi possivel criar o Reindeer");
 					exit(EXIT_FAILURE);
 				}
-				printf("\n-------------------------\nCriou Reindeer   "); imprime(0,1);
 				};
 				contR ++;
 				pthread_mutex_unlock(&count_mutex);
@@ -159,7 +153,6 @@ int main (){
 						printf ("Nao foi possivel criar o Reindeer");
 						exit(EXIT_FAILURE);
 					}
-				printf("\n-------------------------\nCriou Elf        "); imprime(1,0);
 				contE ++;
 				pthread_mutex_unlock(&count_mutex);
 				break;
