@@ -98,8 +98,8 @@ void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
 	pthread_mutex_lock(&count_mutex);
+	printf("Papai Noel acordou!!!");
 	fflush(stdout);
-	printf("Papai Noel acordou!!!);
 	if (count_reindeer == REINDEER){
 		for(int p=0;p<9;p++){		// Se existem 9 renas então elas sao atendidas primeiramente
 		count_reindeer--;
