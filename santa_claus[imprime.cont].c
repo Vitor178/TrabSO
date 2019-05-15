@@ -118,43 +118,41 @@ void *Santa(){
 
 int main (){
 	int ticket=0; 			//Inicialização de ticket, que sera usado para sortear qual thread sera criada
-	sem_init(&sem_elf,0,0);         
+	sem_init(&sem_elf,0,0);         //inicia os semafaros
 	sem_init(&sem_santa,0,0);
 	sem_init(&sem_reindeer,0,0);
 	pthread_t Reindeerthreads[REINDEER];
 	pthread_t Elfthreads[ELFS];
 	pthread_t Santathreads[1];
-	srand(time(NULL)); 
+	srand(time(NULL)); 			//necessario para aleatorizar a criacao
 	int contE=0, contR=0; 			//Contador contE para limitar o numero de elfos. Ambos sao usados na pthread_create
 	if (pthread_create(&Santathreads[0],NULL,Santa,NULL)){
 		printf ("Nao foi possivel criar o Santa");
 		exit(EXIT_FAILURE);
 	}
 	while(1){
-		sleep(1);
+		sleep(1);					//Para facilitar a visualizacao
 		//printf("\n%i",cont);
 		ticket = rand()%4;     //Sorteia o ticket
-		switch(ticket){
+		switch(ticket){					//Cria as treads aleatoriamente com uma chance em quatro de criar reindeer
 			case 0:
-				pthread_mutex_lock(&count_mutex);
-				if(count_reindeer < REINDEER){
+				pthread_mutex_lock(&count_mutex);	//bloqueia o mutex para impedir que o valor mude após a verificação
+				if(count_reindeer < REINDEER){		//impedindo assim que se tenha mais de 9 reindeers
 				if (pthread_create(&Reindeerthreads[contR], NULL, reindeer, NULL)){	//Criação da thread Reindeer
 					printf ("Nao foi possivel criar o Reindeer");
 					exit(EXIT_FAILURE);
 				}
 				};
-				contR ++;
 				pthread_mutex_unlock(&count_mutex);
+				contR ++;				//aumenta para o vetor Reindeerthreads
 				break;
-			default:
-				pthread_mutex_lock(&count_mutex);
+			default:				//Nao e necessario bloquear o cont_mutex aqui. Essas variaveis sao apenas da main		
 			        if(contE <ELFS)	
 					if(pthread_create(&Elfthreads[contE], NULL, elf, NULL)){	// Criação da thread Elf
 						printf ("Nao foi possivel criar o Reindeer");
 						exit(EXIT_FAILURE);
 					}
-				contE ++;
-				pthread_mutex_unlock(&count_mutex);
+				contE ++;			//aumenta para o vetor Elfthreads
 				break;
 		}
 
