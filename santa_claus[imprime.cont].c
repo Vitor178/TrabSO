@@ -51,30 +51,30 @@ void imprime(){
 void *reindeer(){
 	pthread_mutex_lock(&count_mutex);	//impede que mais alguem altere o valor
 	count_reindeer++;
-	printf("\n-------------------------\nCriou Reindeer   ");
-	imprime();
-	if (count_reindeer==REINDEER)				//se ja tiverem 9
+	printf("\n-------------------------\nCriou Reindeer   ");	//usado apenas para visualizacao
+	imprime();							//usado apenas para visualizacao
+	if (count_reindeer==REINDEER)				//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
 		sem_post(&sem_santa);
-	pthread_mutex_unlock(&count_mutex);
+	pthread_mutex_unlock(&count_mutex);			//permite que outros reindeers alterem o valor
 	sem_wait(&sem_reindeer);			//espera o santa liberar ele
 	
-	get_hitched();
+	get_hitched();					
 	pthread_exit(NULL);
 	
 }
 
 //Thread executada pelos elfos
 void *elf(){
-	pthread_mutex_lock(&elf_mutex);  
-	pthread_mutex_lock(&count_mutex); 
+	pthread_mutex_lock(&elf_mutex);  				//impede que outros elfos iniciem
+	pthread_mutex_lock(&count_mutex); 				//impede que mudem o valor do contador
        	count_elf ++;
-	printf("\n-------------------------\nCriou Elf        ");
-	imprime();
-	if (count_elf == 3)
-		sem_post(&sem_santa);
+	printf("\n-------------------------\nCriou Elf        ");	//usado apenas para visualizacao
+	imprime();							//usado apenas para visualizacao
+	if (count_elf == 3)						//verifca se tem 3 elfos esperando
+		sem_post(&sem_santa);					//acorda o santa
 	else 
-		pthread_mutex_unlock(&elf_mutex);  
-	pthread_mutex_unlock(&count_mutex);  
+		pthread_mutex_unlock(&elf_mutex);  			//se nao tiverem 3 esperando, permite que outros cheguem
+	pthread_mutex_unlock(&count_mutex);  				//permite que alterem os conts 
 	sem_wait(&sem_elf);
 	get_help();
 	pthread_mutex_lock(&count_mutex);  
