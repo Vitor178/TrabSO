@@ -47,11 +47,11 @@ void help_elf(){
 	fflush(stdout);
 }*/
 void imprime(){
-	if (count_elf < 3 && count_reindeer != 8)
-			printf ("Santa: Sleeping");
+	if (count_elf < 3 && count_reindeer != 8){
+		printf("Santa: Sleeping\n Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
+	}
 	else 
-		printf ("Santa: Wake up");
-	printf("\n Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
+		printf("Santa: Wake up\n Elfos: %d  Renas : %d\n",count_elf, count_reindeer);
 	fflush(stdout);
 }
 
