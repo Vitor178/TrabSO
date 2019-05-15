@@ -93,6 +93,7 @@ void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
 	pthread_mutex_lock(&count_mutex);
+	printf("\n-------------------------\n");
 	printf("\nPapai Noel acordou!!!\n");
 	fflush(stdout);
 	if (count_reindeer == REINDEER){
