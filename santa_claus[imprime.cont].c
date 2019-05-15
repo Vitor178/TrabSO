@@ -41,11 +41,20 @@ void help_elf(){
 }
 
 //Função que imprime a quantidade de renas e elfos ja criados
-void imprime(){
+/*void imprime(){
 
 	printf(" Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
 	fflush(stdout);
+}*/
+void imprime(){
+	if (count_elf < 3 && count_reindeer != 8)
+			printf ("Santa: Sleeping");
+	else 
+		printf ("Santa: Wake up");
+	printf("\n Elfos: %d  Renas : %d\n",count_elf+1, count_reindeer+1);
+	fflush(stdout);
 }
+
 
 //Thread executada pelas renas
 void *reindeer(void *n_tava_indo_sem_isso){
@@ -89,6 +98,7 @@ void *Santa(){
 	while(1){
 	sem_wait(&sem_santa);
 	pthread_mutex_lock(&count_mutex);
+	imprime();
 	if (count_reindeer == REINDEER){
 		for(int p=0;p<9;p++){		// Se existem 9 renas então elas sao atendidas primeiramente
 		count_reindeer--;
@@ -119,8 +129,11 @@ int main (){
 	pthread_t Elfthreads[ELFS];
 	pthread_t Santathreads[1];
 	srand(time(NULL)); 
-	int cont=0; 			//Contador para que o numero de elfos criados nao ultrapasse o limite
-	pthread_create(&Santathreads[0],NULL,Santa,NULL);
+	int contE=0, contR=0; 			//Contador contE para limitar o numero de elfos. Ambos sao usados na pthread_create
+	if (pthread_create(&Santathreads[0],NULL,Santa,NULL)){
+		printf ("Nao foi possivel criar o Santa");
+		exit(EXIT_FAILURE);
+	}
 	while(1){
 		sleep(1);
 		//printf("\n%i",cont);
@@ -129,21 +142,27 @@ int main (){
 			case 0:
 				pthread_mutex_lock(&count_mutex);
 				if(count_reindeer < REINDEER){
-				pthread_create(&Reindeerthreads[cont], NULL, reindeer, NULL);	//Criação da thread Reindeer
+				if (pthread_create(&Reindeerthreads[contR], NULL, reindeer, NULL)){	//Criação da thread Reindeer
+					printf ("Nao foi possivel criar o Reindeer");
+					exit(EXIT_FAILURE);
+				}
 				printf("Criou Reindeer   "); imprime();
 				};
 				pthread_mutex_unlock(&count_mutex);
+				contR ++;
 				break;
 			default:
 				pthread_mutex_lock(&count_mutex);
-			        if(cont <ELFS)	
-					pthread_create(&Elfthreads[cont], NULL, elf, NULL);	// Criação da thread Elf
-					printf("Criou Elf        "); imprime();
+			        if(contE <ELFS)	
+					if(pthread_create(&Elfthreads[contE], NULL, elf, NULL)){	// Criação da thread Elf
+						printf ("Nao foi possivel criar o Reindeer");
+						exit(EXIT_FAILURE);
+					}
+				printf("Criou Elf        "); imprime();
+				contE ++;
 				pthread_mutex_unlock(&count_mutex);
 				break;
 		}
-
-		cont ++;
 
 	}	
 
