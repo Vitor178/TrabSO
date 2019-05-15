@@ -86,6 +86,7 @@ void *Santa(){
 	while(1){				//santa fica em um loop
 		sem_wait(&sem_santa);			//dorme ate ser chamado pelo reeindeer ou pelo elf
 		pthread_mutex_lock(&count_mutex);	//trava o mutex para impedir que o valor da rena altere enquanto reduz ele
+		printf("\n-------------------------\n");
 		printf("Papai Noel acordou!!!\n");	//usado apenas para visualizacao
 		fflush(stdout);				//usado apenas para visualizacao
 
