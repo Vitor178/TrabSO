@@ -8,19 +8,21 @@
 
 //Define o valores maximos de renas e elfos
 #define REINDEER 9 
-#define ELFS 100
+#define ELFS 100000
 
 //Inicialização dos contadores
 int count_elf = 0; 
 int count_reindeer = 0; 	 
 
+int visual = 0;
 //Inicialização dos semaforos
 sem_t sem_santa, sem_elf, sem_reindeer;
 
 //Inicialização dos mutex
-pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t elf_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_mutex_t visualizacao = PTHREAD_MUTEX_INITIALIZER;
 
 // Funções executadas pelos atores do problema
 void get_hitched (){
@@ -46,7 +48,6 @@ void *reindeer(){
 	printf("\n-------------------------\nCriou Reindeer   ");	//usado apenas para visualizacao
 	imprime();							//usado apenas para visualizacao
 	if (count_reindeer==REINDEER)		//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
-
 		sem_post(&sem_santa);
 	pthread_mutex_unlock(&count_mutex);				//permite que outros threads alterem o valor
 	sem_wait(&sem_reindeer);					//espera o santa liberar ele
@@ -65,13 +66,13 @@ void *elf(){
 	imprime();							//usado apenas para visualizacao
 	if (count_elf == 3)						//verifca se tem 3 elfos esperando
 		sem_post(&sem_santa);					//acorda o santa
-	pthread_mutex_unlock(&elf_mutex);  				//se nao tiverem 3 esperando, permite que outros cheguem
+	else	pthread_mutex_unlock(&elf_mutex);  			//se nao tiverem 3 esperando, permite que outros cheguem
 	pthread_mutex_unlock(&count_mutex);  				//permite que alterem os conts 
 	sem_wait(&sem_elf);						//espera o santa liberar ele
 	get_help();
 	pthread_mutex_lock(&count_mutex);  				//trava para reduzir o contador
 	count_elf--;
-	if(!count_elf)						//se for o ultimo a reduzir libera para que outros esfos possam entrar
+	if(count_elf == 0)					//se for o ultimo a reduzir libera para que outros esfos possam entrar
 		pthread_mutex_unlock(&elf_mutex); 
 	pthread_mutex_unlock(&count_mutex);  				//permite que outros alterem o cont
 	
@@ -96,6 +97,9 @@ void *Santa(){
 				sem_post(&sem_reindeer);
 			}
 		
+			pthread_mutex_lock(&visualizacao);
+			visual = 2;
+			pthread_mutex_unlock(&visualizacao);
 
 		}
 		else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
@@ -123,20 +127,27 @@ int main (){
 		exit(EXIT_FAILURE);
 	}
 	while(1){
-		sleep(1);					//Para facilitar a visualizacao
-		//printf("\n%i",cont);
+		//sleep(1);					//Para facilitar a visualizacao
 		ticket = rand()%4;     //Sorteia o ticket
 		switch(ticket){					//Cria as treads aleatoriamente com uma chance em quatro de criar reindeer
 			case 0:
-				pthread_mutex_lock(&count_mutex);	//bloqueia o mutex para impedir que o valor mude após a verificação
-				if(count_reindeer < REINDEER){		//impedindo assim que se tenha mais de 9 reindeers
-				if (pthread_create(&Reindeerthreads[contR], NULL, reindeer, NULL)){	//Criação da thread Reindeer
+				pthread_mutex_lock(&visualizacao);
+				if(contR < REINDEER && visual == 0){		//impedindo assim que se tenha mais de 9 reindeers
+					if (pthread_create(&Reindeerthreads[contR], NULL, reindeer, NULL)){	//Criação da thread Reindeer
 					printf ("Nao foi possivel criar o Reindeer");
 					exit(EXIT_FAILURE);
+					}
+					contR++;
 				}
-				}
-				pthread_mutex_unlock(&count_mutex);
-				contR ++;				//aumenta para o vetor Reindeerthreads
+				else
+					if (visual == 0)
+						visual = 1;
+					else if (visual == 2){
+						visual = 0;
+						contR =0;
+					}
+
+			pthread_mutex_unlock(&visualizacao);
 				break;
 			default:				//Nao e necessario bloquear o cont_mutex aqui. Essas variaveis sao apenas da main		
 			        if(contE <ELFS)	
