@@ -36,6 +36,14 @@ void get_help (){
 	printf("\nElfo recebeu ajuda\n");
 	fflush(stdout);
 }
+void get_Sleight(){
+	printf("\nPreeparar rena");
+	fflush(stdout);
+}
+void help_elf(){
+	printf("\nElfo ajudado");
+	fflush(stdout);
+}
 
 //Função que imprime a quantidade de renas e elfos ja criados
 void imprime(){
@@ -96,7 +104,8 @@ void *Santa(){
 
 		if (count_reindeer == REINDEER){
 			for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
-			count_reindeer--;
+				count_reindeer--;
+				get_Sleight()
 				sem_post(&sem_reindeer);
 			}
 		
@@ -107,6 +116,7 @@ void *Santa(){
 		}
 		else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
 		for(int e=0;e<3;e++){	
+			help_elf();
 	 		sem_post(&sem_elf);    		//Libera elfos e os ajuda
 			}
 		}
