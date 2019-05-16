@@ -14,7 +14,6 @@
 int count_elf = 0; 
 int count_reindeer = 0; 	 
 
-int visual = 0;
 //Inicialização dos semaforos
 sem_t sem_santa, sem_elf, sem_reindeer;
 
@@ -22,7 +21,11 @@ sem_t sem_santa, sem_elf, sem_reindeer;
 pthread_mutex_t elf_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+//Inicialização de uma variavel e um mutex usados para a impressao						
 pthread_mutex_t visualizacao = PTHREAD_MUTEX_INITIALIZER;
+int visual = 0;			//visual = 0 -> criando as 9 renas
+				//visual = 1 -> as 9 renas ja foram criadas
+				//visual = 2 -> santa liberou as 9 renas, o valor ja pode voltar a ser 0 
 
 // Funções executadas pelos atores do problema
 void get_hitched (){
@@ -97,9 +100,9 @@ void *Santa(){
 				sem_post(&sem_reindeer);
 			}
 		
-			pthread_mutex_lock(&visualizacao);
-			visual = 2;
-			pthread_mutex_unlock(&visualizacao);
+			pthread_mutex_lock(&visualizacao);	//impede que a main altere o valor de visual
+			visual = 2;				//avisa que as 9 renas ja foram liberadas
+			pthread_mutex_unlock(&visualizacao);	//permite que a main altere a visual
 
 		}
 		else{					//caso nao haja 9 reindeers, ele foi acordado pelos elfs
@@ -131,7 +134,7 @@ int main (){
 		ticket = rand()%4;     //Sorteia o ticket
 		switch(ticket){					//Cria as treads aleatoriamente com uma chance em quatro de criar reindeer
 			case 0:
-				pthread_mutex_lock(&visualizacao);
+				
 				if(contR < REINDEER && visual == 0){		//impedindo assim que se tenha mais de 9 reindeers
 					if (pthread_create(&Reindeerthreads[contR], NULL, reindeer, NULL)){	//Criação da thread Reindeer
 					printf ("Nao foi possivel criar o Reindeer");
@@ -139,18 +142,21 @@ int main (){
 					}
 					contR++;
 				}
-				else
-					if (visual == 0)
-						visual = 1;
-					else if (visual == 2){
+				else{
+					pthread_mutex_lock(&visualizacao);	//trava a mudança no visual
+					if (visual == 0)		//caso o santa ainda nao tenha alterado o valor, ele muda para 1
+						visual = 1;		//sendo o visual = 1, ele nao so ira criar renas quando voltar a 0
+					else if (visual == 2){		//se o santa, avisou que ja liberou as renas, permite a criaçao de novas
 						visual = 0;
-						contR =0;
+						contR =0;		//zera o contR para contar ate 9 novamente
 					}
+					pthread_mutex_unlock(&visualizacao);
+				}
 
-			pthread_mutex_unlock(&visualizacao);
+			
 				break;
 			default:				//Nao e necessario bloquear o cont_mutex aqui. Essas variaveis sao apenas da main		
-			        if(contE <ELFS)	
+			        if(contE <ELFS)			//evita que os elfos seejam criados infinitamente
 					if(pthread_create(&Elfthreads[contE], NULL, elf, NULL)){	// Criação da thread Elf
 						printf ("Nao foi possivel criar o Reindeer");
 						exit(EXIT_FAILURE);
