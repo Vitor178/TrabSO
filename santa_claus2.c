@@ -125,7 +125,7 @@ void *Create_elf(){
 	while(1){
 		//sleep((rand()%300)/1000);
 		if(pthread_create(&Elfthreads[cont], NULL, elf, NULL)){	// Criação da thread Elf
-			printf ("Nao foi possivel criar o Reindeer");
+			printf ("Nao foi possivel criar o Elf");
 			fflush(stdout);
 			exit(EXIT_FAILURE);
 		}
