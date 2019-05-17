@@ -105,7 +105,7 @@ void *Santa(){
 		if (count_reindeer == REINDEER){
 			for(int p=0; p<9; p++){		// Se existem 9 reindeers então elas sao atendidas primeiramente
 				count_reindeer--;
-				get_Sleight()
+				get_Sleight();
 				sem_post(&sem_reindeer);
 			}
 		
