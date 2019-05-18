@@ -4,11 +4,13 @@
 #include <unistd.h>
 #include <time.h>
 #include <semaphore.h>
-
+#include <errno.h>
+#include <string.h>
 
 //Define o valores maximos de renas e elfos
 #define REINDEER 9 
 #define ELFS 100000
+#define LEN 128
 
 //Inicialização dos contadores
 int count_elf = 0; 
@@ -32,7 +34,7 @@ void get_help (){
 	fflush(stdout);
 }
 void get_Sleight(){
-	printf("\nPreeparar rena");
+	printf("\nPreparar rena");
 	fflush(stdout);
 }
 void help_elf(){
@@ -49,11 +51,11 @@ void imprime(){
 
 //Thread executada pelas renas
 void *reindeer(){
-	while(1) {
-		//sleep((rand()%700)/1000);
+	while(1) {								//while permite que a reindeer seja reutilizada 
+		sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne 
 		pthread_mutex_lock(&reindeer_mutex);				//impede que outra thread altere o valor
 		count_reindeer++;
-		printf("\n-------------------------\nCriou Reindeer   ");	//usado apenas para visualizacao
+		printf("\n-------------------------\nCriou Rena   ");	//usado apenas para visualizacao
 		imprime();							//usado apenas para visualizacao
 		if (count_reindeer==REINDEER)		//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
 			sem_post(&sem_santa);
@@ -70,7 +72,7 @@ void *elf(){
 	sem_wait(&sem_elf_num); 				
 	pthread_mutex_lock(&elf_mutex); 				//impede que mudem o valor do contador
        	count_elf ++;
-	printf("\n-------------------------\nCriou Elf        ");	//usado apenas para visualizacao
+	printf("\n-------------------------\nCriou Elfo        ");	//usado apenas para visualizacao
 	imprime();							//usado apenas para visualizacao
 	if (count_elf == 3)						//verifca se tem 3 elfos esperando
 		sem_post(&sem_santa);					//acorda o santa
@@ -122,16 +124,22 @@ void *Santa(){
 void *Create_elf(){
 	pthread_t Elfthreads[ELFS];
 	int cont=0;
+	int result=0;
+	char err_msg[LEN];
+
 	while(1){
-		//sleep((rand()%300)/1000);
-		if(pthread_create(&Elfthreads[cont], NULL, elf, NULL)){	// Criação da thread Elf
-			printf ("Nao foi possivel criar o Elf");
+		sleep((rand()%300)/1000);						// Gera um atraso de 0ms a 300ms para a criaçãao de um elf
+		if(result = pthread_create(&Elfthreads[cont], NULL, elf, NULL)){	// Criação da thread Elf
+			if(result){
+			strerror_r(result,err_msg,LEN);
+			fprintf (stderr,"\nNao foi possivel criar Elfo:%s\n",err_msg);
 			fflush(stdout);
 			exit(EXIT_FAILURE);
 		}
-		//cont++;
+		cont++;
 	}
-	//pthread_exit(NULL);
+	pthread_exit(NULL);
+}
 }
 int main (){
 	srand(time(NULL));
@@ -143,23 +151,24 @@ int main (){
 	pthread_t Santathreads[1];
 	pthread_t Elfcreat[1];
 	srand(time(NULL)); 			//necessario para aleatorizar a criacao
-	if (pthread_create(&Santathreads[0],NULL,Santa,NULL)){
-		printf ("Nao foi possivel criar o Santa");
+		if (pthread_create(&Santathreads[0],NULL,Santa,NULL)){		//Cria a thread do Santa Claus
+		printf ("Nao foi possivel criar o Papai Noel");
 		fflush(stdout);
 		exit(EXIT_FAILURE);
-	}
+	}	
 	for (int i=0; i<9; i++){
 		if (pthread_create(&Reindeerthreads[i], NULL, reindeer, NULL)){	//Criação da thread Reindeer
-			printf ("Nao foi possivel criar o Reindeer");
+			printf ("Nao foi possivel criar a Rena");
 			fflush(stdout);	
 			exit(EXIT_FAILURE);
 		}		
 	}
-	if (pthread_create(&Elfcreat[0],NULL,Create_elf,NULL)){
-		printf ("Nao foi possivel criar o Santa");
+	if (pthread_create(&Elfcreat[0],NULL,Create_elf,NULL)){			//Cria a thread usada para criar elfs
+		printf("\nErro ao criar o criador de Elfos\n");
 		fflush(stdout);	
 		exit(EXIT_FAILURE);
-	}
+	} 
+	
 	pthread_exit(NULL);
 }
 
