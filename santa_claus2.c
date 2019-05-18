@@ -55,7 +55,7 @@ void *reindeer(){
 		sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne 
 		pthread_mutex_lock(&reindeer_mutex);				//impede que outra thread altere o valor
 		count_reindeer++;
-		printf("\n-------------------------\nCriou Rena   ");	//usado apenas para visualizacao
+		printf("\n-------------------------\nRena chegou   ");	//usado apenas para visualizacao
 		imprime();							//usado apenas para visualizacao
 		if (count_reindeer==REINDEER)		//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
 			sem_post(&sem_santa);
@@ -72,7 +72,7 @@ void *elf(){
 	sem_wait(&sem_elf_num); 				
 	pthread_mutex_lock(&elf_mutex); 				//impede que mudem o valor do contador
        	count_elf ++;
-	printf("\n-------------------------\nCriou Elfo        ");	//usado apenas para visualizacao
+	printf("\n-------------------------\nElfo chegou        ");	//usado apenas para visualizacao
 	imprime();							//usado apenas para visualizacao
 	if (count_elf == 3)						//verifca se tem 3 elfos esperando
 		sem_post(&sem_santa);					//acorda o santa

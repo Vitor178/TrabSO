@@ -6,7 +6,7 @@
 
 ### Para entender a saida do programa 
 	O programa imprime:
-	- O que chegou: Rena ou Elfo e logo após imprime a quantidade atual deles e que o Papai Noel esta dormindo
+	- Rena/Elfo chegou: Rena ou Elfo e logo após imprime a quantidade atual deles e que o Papai Noel esta dormindo
 	- Rena Pronta : Quando a Rena é arrumada pelo Papai Noel
 	- Papai Noel acordou: Quando o Papai Noel é acordado pelas Renas ou Elfos.
 	- Elfo recebeu ajuda : Quando o Elfo pede a ajuda ai Papai Noel
