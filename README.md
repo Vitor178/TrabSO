@@ -10,7 +10,7 @@
 	  o Papai Noel esta dormindo
 	- Rena Pronta : Quando a Rena é arrumada pelo Papai Noel
 	- Papai Noel acordou: Quando o Papai Noel é acordado pelas Renas ou Elfos.
-	- Elfo recebeu ajuda : Quando o Elfo pede a ajuda ai Papai Noel
+	- Elfo recebeu ajuda : Quando o Elfo pede a ajuda do Papai Noel
 	- Elfo ajudado : Quando o Papai noel ajuda os elfos
 	- Preparar Rena : Quando o Papai noel prepara as renas
 
