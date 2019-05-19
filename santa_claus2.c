@@ -52,12 +52,13 @@ void imprime(){
 //Thread executada pelas renas
 void *reindeer(){
 	while(1) {								//while permite que a reindeer seja reutilizada 
-		//sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne 
+		//sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne
+		sleep(rand()%30); 						//Sleep mais longo para melhor visualização
 		pthread_mutex_lock(&reindeer_mutex);				//impede que outra thread altere o valor
 		count_reindeer++;
 		printf("\n-------------------------\nRena chegou   ");	//usado apenas para visualizacao
 		imprime();							//usado apenas para visualizacao
-		if (count_reindeer==REINDEER)		//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
+		if (count_reindeer==REINDEER)	//se ja tiverem 9 acorda o santa, ainda impedindo que o valor mude antes de verificar
 			sem_post(&sem_santa);
 		pthread_mutex_unlock(&reindeer_mutex);				//permite que outros threads alterem o valor
 		sem_wait(&sem_reindeer);					//espera o santa liberar ele
@@ -127,19 +128,20 @@ void *Create_elf(){
 	int result=0;
 	char err_msg[LEN];
 
-	while(1){
-		//sleep((rand()%300)/1000);						// Gera um atraso de 0ms a 300ms para a criaçãao de um elf
-		if(result = pthread_create(&Elfthreads[cont], NULL, elf, NULL)){	// Criação da thread Elf
+	while(1){ 
+	//	sleep((rand()%300)/1000);					// Gera um atraso de 0ms a 300ms para a criaçãao de um elf
+		sleep(rand()%3);						//Sleep mais longo para melhor visualização
+		result = pthread_create(&Elfthreads[cont], NULL, elf, NULL);	// Criação da thread Elf
 			if(result){
 			strerror_r(result,err_msg,LEN);
 			fprintf (stderr,"\nNao foi possivel criar Elfo:%s\n",err_msg);
 			fflush(stdout);
 			exit(EXIT_FAILURE);
-		}
+			}
 		cont++;
 	}
 	pthread_exit(NULL);
-}
+	
 }
 int main (){
 	srand(time(NULL));
