@@ -52,7 +52,7 @@ void imprime(){
 //Thread executada pelas renas
 void *reindeer(){
 	while(1) {								//while permite que a reindeer seja reutilizada 
-		sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne 
+		//sleep((rand()%700)/1000);					//Gera um atraso entre 0ms e 700ms para que a rena retorne 
 		pthread_mutex_lock(&reindeer_mutex);				//impede que outra thread altere o valor
 		count_reindeer++;
 		printf("\n-------------------------\nRena chegou   ");	//usado apenas para visualizacao
@@ -128,7 +128,7 @@ void *Create_elf(){
 	char err_msg[LEN];
 
 	while(1){
-		sleep((rand()%300)/1000);						// Gera um atraso de 0ms a 300ms para a criaçãao de um elf
+		//sleep((rand()%300)/1000);						// Gera um atraso de 0ms a 300ms para a criaçãao de um elf
 		if(result = pthread_create(&Elfthreads[cont], NULL, elf, NULL)){	// Criação da thread Elf
 			if(result){
 			strerror_r(result,err_msg,LEN);
